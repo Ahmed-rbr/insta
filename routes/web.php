@@ -13,7 +13,8 @@ Route::get('/', [PostController::class, 'index'])
 
 Route::get('/home', function () {
     return redirect('/'); 
-})->name('home');
+});
+
 
 Auth::routes();
 

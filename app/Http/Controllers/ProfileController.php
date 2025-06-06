@@ -2,63 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(User $user)
     {
-        //
+        return view('profiles.index', compact('user'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function edit(User $user)
     {
-        //
+        if (auth()->id() !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        return view('profiles.edit', compact('user'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, User $user)
     {
-        //
-    }
+        if (auth()->id() !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $data = $request->validate([
+            'name' => 'required',
+            'username' => 'required',
+            'bio' => 'nullable',
+            'profile_image' => 'image|nullable|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        if ($request->hasFile('profile_image')) {
+            if ($user->profile_image) {
+                Storage::disk('public')->delete($user->profile_image);
+            }
+            
+            $imagePath = $request->file('profile_image')->store('profile', 'public');
+            $data['profile_image'] = $imagePath;
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $user->update($data);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect("/profile/{$user->id}");
     }
 }

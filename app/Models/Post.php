@@ -2,38 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Post extends Model
 {
-     protected $connection='mongodb';
-     protected $table='posts';
+    protected $connection = 'mongodb';
+    protected $table = 'posts';
+
     protected $fillable = [
         'caption',
         'image_path',
         'image_url',
         'user_id',
-       
     ];
 
-    public function user():BelongsTo
+    public function user()
     {
-
-        return $this->belongsTo(related:User::class);
-
+        return $this->belongsTo(User::class);
     }
 
-public function comments(): HasMany
-{
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 
-    return $this->hasMany(related:Comment::class);
-}
-
-
-public function likes(): HasMany
-{
-    return $this->hasMany(related:Like::class);
-}
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
 }
